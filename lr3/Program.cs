@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
 
 namespace lr3
 {
     partial class Vector : IEnumerable
     {
-       
+        const string.f
         readonly int id;
-        static int _vectors;  
+        static int _vectors;
         private int[] _arr;
         private int _size;
 
@@ -56,7 +57,6 @@ namespace lr3
         }
         
         
-        private Vector() {  }
         private Vector(int size, int value = 0)
         {
             this.Number = ++_vectors;
@@ -76,6 +76,13 @@ namespace lr3
             this.Arr = value;
             this.id = Arr.GetHashCode() + 49 * this.Number;
         }
+
+        public Vector Filter(Func<int, bool> filter = null)
+        {
+            return new Vector(this.Arr.Where(filter ?? (el => true)).ToArray());
+        }
+
+      
 
         public static Vector operator +(Vector v) => v;
 
@@ -166,17 +173,25 @@ namespace lr3
         static void Main(string[] args)
         {
             var h = new Vector(new int[] { 1, 4, 5, 2, 7, 9, 2 });
-            h += 3;
-            h *= 2;
+
+            var j = h.Filter(el => el != 2);
+
+            foreach (int el in h.Filter(el => el != 7))
+            {
+                Console.WriteLine(el);
+
+            }
+
+
             var i = new Vector(1, 2, 3, 4);
 
-            var j = Vector.Prefilled(13, 10);
+           
 
             
 
  
             
-
+            
 
 
             Console.WriteLine(h);
