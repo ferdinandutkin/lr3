@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Linq;
-
+ 
 namespace lr3
 {
     partial class Vector : IEnumerable
     {
-        const string.f
+        const string infoTemplate = "Класс {0}, реализующий одномерный массив целых чисел. На данный момент" +
+           "насчитывает {1} объекта(-ов)";
         readonly int id;
         static int _vectors;
         private int[] _arr;
@@ -27,9 +28,10 @@ namespace lr3
             set
             {
                 Array.Resize(ref _arr, value);
-                _size = value;
+                this._size = value;
             }
         }
+
 
         public int Number{get;}
         public int Id => id;
@@ -44,19 +46,6 @@ namespace lr3
             return new Vector(size, value);
         }
 
-        public void CopyTo(out int[] value)
-        {
-            value = Arr;
-        }
-        public void ConcatWith(ref int[] value)
-        {
-            var toRet = new int[value.Length + this.Size];
-            value.CopyTo(toRet, 0);
-            Arr.CopyTo(toRet, value.Length);
-            value = toRet;
-        }
-        
-        
         private Vector(int size, int value = 0)
         {
             this.Number = ++_vectors;
@@ -77,12 +66,13 @@ namespace lr3
             this.id = Arr.GetHashCode() + 49 * this.Number;
         }
 
-        public Vector Filter(Func<int, bool> filter = null)
-        {
-            return new Vector(this.Arr.Where(filter ?? (el => true)).ToArray());
-        }
+        public Vector Filter(Func<int, bool> filter = null) => new Vector(this.Arr.Where(filter ?? (el => true)).ToArray());
+        public bool All(Func<int, bool> filter = null) => this.Arr.All(filter ?? (el => true));
+        public bool Any(Func<int, bool> filter = null) => this.Arr.Any(filter ?? (el => true));
+        public int Sum() => this.Arr.Sum();
+        public int Min() => this.Arr.Min();
+        public int Max() => this.Arr.Max();
 
-      
 
         public static Vector operator +(Vector v) => v;
 
@@ -113,12 +103,13 @@ namespace lr3
 
         public static Vector operator +(Vector v, Vector j)
         {
-            if (v.Size < j.Size) v.Size = j.Size;
-            for (int i = 0; i < v.Size; i++)
-            {
-                v[i] += j[i];
-            }
-            return v;
+            int[] tempV = v.Arr, tempJ = j.Arr;
+            int maxLen = Math.Max(v.Size, j.Size);
+            if (maxLen == v.Size)
+                Array.Resize(ref tempJ, maxLen);
+            else Array.Resize(ref tempV, maxLen);
+
+            return new Vector(tempV.Zip(tempJ, (a, b) => a + b).ToArray());
         }
 
         public static Vector operator -(Vector v, Vector j) => v + (-j);
@@ -137,66 +128,84 @@ namespace lr3
 
         public int this[int index]
         {
-            get
-            {
-                return this.Arr[index];
-            }
+            get => this.Arr[index];
             set
             {
                 this.Arr[index] = value;
             }
         }
 
-        public IEnumerator GetEnumerator()
-        {
-            return Arr.GetEnumerator();
-        }
+        public IEnumerator GetEnumerator() => Arr.GetEnumerator();
 
 
-        public override bool Equals(object obj)
-        {
-            return Arr.Equals(obj);
-        }
+        public override bool Equals(object obj) => Arr.Equals(obj);
 
-        public override int GetHashCode()
-        {
-            return Arr.GetHashCode();
-        }
+        public override int GetHashCode() => Arr.GetHashCode();
 
-        public override string ToString()
-        {
-            return String.Join(", ", Arr);
-        }
+        public override string ToString() => String.Join(", ", Arr);
+
+
+       public static void Info() => Console.WriteLine(string.Format(infoTemplate, "Vector", _vectors));
     }
     class Program
     {
         static void Main(string[] args)
         {
-            var h = new Vector(new int[] { 1, 4, 5, 2, 7, 9, 2 });
 
-            var j = h.Filter(el => el != 2);
+            var firstVector = new Vector(new int[] { 1, 4, 5, 2, 7, 9, 2 });
 
-            foreach (int el in h.Filter(el => el != 7))
-            {
-                Console.WriteLine(el);
+            Console.WriteLine("Создали вектор: " + firstVector);
+            Console.WriteLine("Умножили на два: " + (firstVector *= 2));
+            Console.WriteLine("Прибавили три: " + (firstVector += 3));
+            Console.WriteLine("Отняли пять:" + (firstVector -= 5));
 
-            }
+            var secondVector = new Vector(7, 19, 56, 3);
+            Console.WriteLine($"Добавили к вектору {firstVector} вектор {secondVector}: {firstVector += secondVector}");
+
+
+            
+ 
+
+            
 
 
             var i = new Vector(1, 2, 3, 4);
 
-           
+            Vector[] vectors = new Vector[] { new Vector(1, 2, 3, 4),  new Vector(89, 37, 16, 2), new Vector(2, 7,9,8),
+                new Vector(2, 8, 6), new Vector(3, 9, 11) };
 
-            
+
+            Console.WriteLine("Все вектора: ");
+            foreach (var vector in vectors)
+                Console.WriteLine(vector);
+
+            Console.WriteLine("Вектора только с нечетными значениями: ");
+            foreach (var vector in vectors.Where(v => v.All(el => Convert.ToBoolean(el % 2))))
+                Console.WriteLine(vector);
+
+            Console.WriteLine("Вектора только с четными значениями: ");
+            foreach (var vector in vectors.Where(v => v.All(el => !Convert.ToBoolean(el % 2))))
+                Console.WriteLine(vector);
+
+            Console.WriteLine("Вектор с наибольшей суммой: " + (from vector in vectors orderby vector.Sum() descending select vector).First());  //Array.Sort? да слышал неинтересно
+
+            var anon = new { arr = new int[] { 1, 8, 6 }, size = 3 };
+            Console.WriteLine(anon);
+
+            Vector.Info();
+
+
+
+
+
+
+
+
+
+
+
 
  
-            
-            
-
-
-            Console.WriteLine(h);
-
-            Console.WriteLine("Hello World!");
 
 
         }
