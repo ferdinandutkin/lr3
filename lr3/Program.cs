@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
  
 namespace lr3
 {
-    partial class Vector : IEnumerable
+    partial class Vector : IEnumerable<int>
     {
         const string infoTemplate = "Класс {0}, реализующий одномерный массив целых чисел. На данный момент" +
            "насчитывает {1} объекта(-ов)";
@@ -66,12 +67,8 @@ namespace lr3
             this.id = Arr.GetHashCode() + 49 * this.Number;
         }
 
-        public Vector Filter(Func<int, bool> filter = null) => new Vector(this.Arr.Where(filter ?? (el => true)).ToArray());
-        public bool All(Func<int, bool> filter = null) => this.Arr.All(filter ?? (el => true));
-        public bool Any(Func<int, bool> filter = null) => this.Arr.Any(filter ?? (el => true));
-        public int Sum() => this.Arr.Sum();
-        public int Min() => this.Arr.Min();
-        public int Max() => this.Arr.Max();
+      
+        
 
 
         public static Vector operator +(Vector v) => v;
@@ -137,6 +134,8 @@ namespace lr3
 
         public IEnumerator GetEnumerator() => Arr.GetEnumerator();
 
+        IEnumerator<int> IEnumerable<int>.GetEnumerator() => ((IEnumerable<int>)Arr).GetEnumerator();
+
 
         public override bool Equals(object obj) => Arr.Equals(obj);
 
@@ -146,6 +145,8 @@ namespace lr3
 
 
        public static void Info() => Console.WriteLine(string.Format(infoTemplate, "Vector", _vectors));
+
+ 
     }
     class Program
     {
@@ -154,7 +155,8 @@ namespace lr3
 
             var firstVector = new Vector(new int[] { 1, 4, 5, 2, 7, 9, 2 });
 
-            Console.WriteLine("Создали вектор: " + firstVector);
+
+        Console.WriteLine("Создали вектор: " + firstVector);
             Console.WriteLine("Умножили на два: " + (firstVector *= 2));
             Console.WriteLine("Прибавили три: " + (firstVector += 3));
             Console.WriteLine("Отняли пять:" + (firstVector -= 5));
